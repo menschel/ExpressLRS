@@ -2,6 +2,7 @@
 #if !defined(PLATFORM_STM32)
     #include "ardupilot_protocol.h"
 #endif
+#include <algorithm>
 
 void convert_mavlink_to_crsf_telem(uint8_t *CRSFinBuffer, uint8_t count, Handset *handset)
 {
@@ -42,7 +43,7 @@ void convert_mavlink_to_crsf_telem(uint8_t *CRSFinBuffer, uint8_t count, Handset
                 // mAh
                 crsfbatt.p.capacity = 0;
                 if (battery_status.current_consumed > 0){ // int32_t, -1 means invalid
-                    crsfbatt.p.capacity = htobe32(((uint32_t) battery_status.current_consumed) & 0x0FFF);
+                    crsfbatt.p.capacity = htobe32(std::min(((uint32_t) battery_status.current_consumed), (uint32_t) 0xFFFFFFU)); // 24bit value
                 }
                 // 0-100%
                 crsfbatt.p.remaining = 0;
